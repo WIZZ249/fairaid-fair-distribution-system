@@ -1,8 +1,11 @@
 name,age,gender,household_size,disability,monthly_income,displaced
-Amina,34,F,6,No,30,Yes
-Omar,67,M,2,Yes,10,No
-Fatima,25,F,4,No,50,Yes
-Hassan,80,M,1,Yes,5,Yes
-Sara,29,F,3,No,70,No
-John,72,M,5,No,15,Yes
-Mary,40,F,7,No,25,Yes
+Amina Al-Sayed,34,F,6,No,30,Yes
+Omar Bakri,67,M,2,Yes,10,No
+Fatima Zahra,25,F,4,No,50,Yes
+Hassan Mahmoud,80,M,1,Yes,5,Yes
+Sara Williams,29,F,3,No,70,No
+John Doe,72,M,5,No,15,Yes
+Elena Rodriguez,45,F,8,No,22,Yes
+Kwame Mensah,31,M,4,Yes,12,No
+Yusuf Khan,55,M,6,No,45,Yes
+Marie Curie,68,F,2,No,18,No

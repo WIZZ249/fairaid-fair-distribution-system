@@ -1,28 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>FairAid - Aid Distribution Ranking</title>
+    <meta charset="UTF-8">
+    <title>FairAid | Distribution Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+    <div class="container">
+        <header>
+            <h1>FairAid Distribution System</h1>
+            <p class="subtitle">AI-Assisted Fairness Scoring for Humanitarian Relief</p>
+        </header>
 
-<h1>FairAid – Fair Distribution Dashboard</h1>
-
-<table>
-    <tr>
-        <th>Name</th>
-        <th>Score</th>
-        <th>Explanation</th>
-    </tr>
-
-    {% for row in tables %}
-    <tr>
-        <td>{{ row.name }}</td>
-        <td>{{ row.vulnerability_score }}</td>
-        <td>{{ row.explanation }}</td>
-    </tr>
-    {% endfor %}
-</table>
-
+        <table>
+            <thead>
+                <tr>
+                    <th>Beneficiary Name</th>
+                    <th>Vulnerability Score</th>
+                    <th>Priority Factors</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in tables %}
+                <tr>
+                    <td><strong>{{ row.name }}</strong></td>
+                    <td><span class="score-pill">{{ row.vulnerability_score }}</span></td>
+                    <td>
+                        {% for factor in row.explanation.split(', ') %}
+                            <span class="badge">{{ factor }}</span>
+                        {% endfor %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </body>
 </html>

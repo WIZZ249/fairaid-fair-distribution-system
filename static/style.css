@@ -1,0 +1,84 @@
+:root {
+    --primary: #2c7be5;
+    --secondary: #6e84a3;
+    --success: #00d97e;
+    --background: #f9fbfd;
+    --text: #12263f;
+}
+
+body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background-color: var(--background);
+    color: var(--text);
+    margin: 0;
+    padding: 40px;
+}
+
+.container {
+    max-width: 1000px;
+    margin: auto;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+h1 {
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: var(--secondary);
+    font-size: 1.1rem;
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(10, 22, 46, 0.05);
+    overflow: hidden;
+}
+
+th {
+    background-color: #f8fafd;
+    color: var(--secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    padding: 15px;
+    border-bottom: 1px solid #e3ebf6;
+}
+
+td {
+    padding: 15px;
+    border-bottom: 1px solid #e3ebf6;
+    font-size: 0.95rem;
+}
+
+tr:hover {
+    background-color: #f1f4f8;
+}
+
+.badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    background: #e3ebf6;
+    color: var(--primary);
+    margin: 2px;
+    display: inline-block;
+}
+
+.score-pill {
+    font-weight: bold;
+    color: var(--success);
+    background: rgba(0, 217, 126, 0.1);
+    padding: 5px 10px;
+    border-radius: 6px;
+}
