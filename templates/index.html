@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FairAid - Aid Distribution Ranking</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<h1>FairAid – Fair Distribution Dashboard</h1>
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Score</th>
+        <th>Explanation</th>
+    </tr>
+
+    {% for row in tables %}
+    <tr>
+        <td>{{ row.name }}</td>
+        <td>{{ row.vulnerability_score }}</td>
+        <td>{{ row.explanation }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+</body>
+</html>
