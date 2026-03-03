@@ -11,7 +11,17 @@
             <h1>FairAid Distribution System</h1>
             <p class="subtitle">AI-Assisted Fairness Scoring for Humanitarian Relief</p>
         </header>
-
+<div class="audit-ribbon" style="display: flex; gap: 20px; justify-content: center; margin-bottom: 30px;">
+    <div class="stat-card" style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <strong>Total Applicants:</strong> {{ stats.total }}
+    </div>
+    <div class="stat-card" style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <strong>Gender Balance (F):</strong> {{ stats.female_representation }}
+    </div>
+    <div class="stat-card" style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <strong>Displaced Priority:</strong> {{ stats.displaced_priority }}
+    </div>
+</div>
         <table>
             <thead>
                 <tr>
