@@ -2,43 +2,69 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>FairAid | Distribution Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FairAid Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
+        <nav style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 10px; background: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+            <div>
+                <strong>FairAid System</strong> | Logged in as: <span style="color: #3498db;">{{ current_user.username }}</span>
+            </div>
+            <a href="{{ url_for('logout') }}" style="color: #e74c3c; text-decoration: none; font-weight: bold;">Logout</a>
+        </nav>
+
         <header>
-            <h1>FairAid Distribution System</h1>
-            <p class="subtitle">AI-Assisted Fairness Scoring for Humanitarian Relief</p>
+            <h1>Humanitarian Distribution Dashboard</h1>
+            <p class="subtitle">AI-Assisted Fairness Scoring & Audit</p>
         </header>
-<div class="audit-ribbon" style="display: flex; gap: 20px; justify-content: center; margin-bottom: 30px;">
-    <div class="stat-card" style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-        <strong>Total Applicants:</strong> {{ stats.total }}
-    </div>
-    <div class="stat-card" style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-        <strong>Gender Balance (F):</strong> {{ stats.female_representation }}
-    </div>
-    <div class="stat-card" style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-        <strong>Displaced Priority:</strong> {{ stats.displaced_priority }}
-    </div>
+
+        <div class="audit-ribbon" style="display: flex; gap: 20px; justify-content: center; margin-bottom: 30px;">
+            <div class="stat-card" style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <strong>Total Applicants:</strong> {{ stats.total }}
+            </div>
+            <div class="stat-card" style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <strong>Displaced Priority:</strong> {{ stats.displaced_priority }}
+            </div>
+        </div>
+<div style="margin-bottom: 20px; text-align: right;">
+    <a href="{{ url_for('add_beneficiary') }}" style="background: #3498db; color: white; padding: 12px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
+<div style="margin-bottom: 30px; display: flex; gap: 10px;">
+    <form action="{{ url_for('index') }}" method="GET" style="display: flex; gap: 10px; width: 100%;">
+        <input type="text" name="search" placeholder="Search by beneficiary name..." value="{{ search_query }}" 
+               style="flex-grow: 1; padding: 12px; border-radius: 6px; border: 1px solid #333; background: #252525; color: white;">
+        <button type="submit" style="padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 6px; cursor: pointer;">Search</button>
+        {% if search_query %}
+            <a href="{{ url_for('index') }}" style="padding: 10px 20px; background: #7f8c8d; color: white; text-decoration: none; border-radius: 6px; font-size: 0.9em; display: flex; align-items: center;">Clear</a>
+        {% endif %}
+    </form>
+</div>
+        + Register New Beneficiary
+    </a>
 </div>
         <table>
             <thead>
                 <tr>
                     <th>Beneficiary Name</th>
+                    <th>Age</th>
                     <th>Vulnerability Score</th>
-                    <th>Priority Factors</th>
+                    <th>Priority Tags</th>
                 </tr>
             </thead>
             <tbody>
-                {% for row in tables %}
+                {% for applicant in applicants %}
                 <tr>
-                    <td><strong>{{ row.name }}</strong></td>
-                    <td><span class="score-pill">{{ row.vulnerability_score }}</span></td>
+                    <td>{{ applicant.name }}</td>
+                    <td>{{ applicant.age }}</td>
+                    <td><strong>{{ "%.2f"|format(applicant.vulnerability_score) }}</strong></td>
                     <td>
-                        {% for factor in row.explanation.split(', ') %}
-                            <span class="badge">{{ factor }}</span>
-                        {% endfor %}
+                        {% if applicant.is_displaced %}
+                        <span style="background: #ffeaa7; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; margin-right: 5px;">DISPLACED</span>
+                        {% endif %}
+                        {% if applicant.is_disabled %}
+                        <span style="background: #fab1a0; padding: 4px 8px; border-radius: 4px; font-size: 0.8em;">DISABLED</span>
+                        {% endif %}
                     </td>
                 </tr>
                 {% endfor %}
