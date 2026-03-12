@@ -28,20 +28,31 @@
                 <strong>Displaced Priority:</strong> {{ stats.displaced_priority }}
             </div>
         </div>
-<div style="margin-bottom: 20px; text-align: right;">
-    <a href="{{ url_for('add_beneficiary') }}" style="background: #3498db; color: white; padding: 12px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
-<div style="margin-bottom: 30px; display: flex; gap: 10px;">
-    <form action="{{ url_for('index') }}" method="GET" style="display: flex; gap: 10px; width: 100%;">
-        <input type="text" name="search" placeholder="Search by beneficiary name..." value="{{ search_query }}" 
+<div style="margin-bottom: 30px; display: flex; flex-direction: column; gap: 15px;">
+    
+    <form action="{{ url_for('index') }}" method="GET" style="display: flex; gap: 10px;">
+        <input type="text" 
+               name="search" 
+               placeholder="Search beneficiaries by name..." 
+               value="{{ search_query }}" 
                style="flex-grow: 1; padding: 12px; border-radius: 6px; border: 1px solid #333; background: #252525; color: white;">
-        <button type="submit" style="padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 6px; cursor: pointer;">Search</button>
+        
+        <button type="submit" style="padding: 10px 25px; background: #3498db; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+            Search
+        </button>
+
         {% if search_query %}
-            <a href="{{ url_for('index') }}" style="padding: 10px 20px; background: #7f8c8d; color: white; text-decoration: none; border-radius: 6px; font-size: 0.9em; display: flex; align-items: center;">Clear</a>
+            <a href="{{ url_for('index') }}" style="padding: 10px 20px; background: #7f8c8d; color: white; text-decoration: none; border-radius: 6px; display: flex; align-items: center;">
+                Clear
+            </a>
         {% endif %}
     </form>
-</div>
-        + Register New Beneficiary
-    </a>
+
+    <div style="text-align: right;">
+        <a href="{{ url_for('add_beneficiary') }}" style="background: #27ae60; color: white; padding: 12px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+            + Register New Beneficiary
+        </a>
+    </div>
 </div>
         <table>
             <thead>
