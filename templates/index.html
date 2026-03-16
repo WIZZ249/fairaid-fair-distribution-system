@@ -1,86 +1,209 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FairAid Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FairAid - Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#07080f;--surface:#0e1117;--card:#131820;--border:#1e2a3a;--accent:#3b82f6;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;--purple:#a855f7;--text:#e2e8f0;--muted:#64748b;--muted2:#94a3b8}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+a{text-decoration:none;color:inherit}
+.navbar{background:rgba(7,8,15,0.95);border-bottom:1px solid var(--border);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+.nav-brand{font-weight:700;font-size:1.05rem;display:flex;align-items:center;gap:10px}
+.nav-dot{width:8px;height:8px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.nav-right{display:flex;align-items:center;gap:16px}
+.nav-user{font-size:0.82rem;color:var(--muted);background:var(--card);border:1px solid var(--border);padding:5px 12px;border-radius:6px}
+.nav-user span{color:var(--accent);font-weight:600}
+.btn-logout{font-size:0.82rem;color:var(--red);border:1px solid rgba(239,68,68,0.3);padding:5px 12px;border-radius:6px;transition:all 0.2s}
+.btn-logout:hover{background:rgba(239,68,68,0.1)}
+.layout{display:flex;min-height:calc(100vh - 60px)}
+.sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);padding:24px 0;flex-shrink:0}
+.sidebar-section{padding:0 16px;margin-bottom:24px}
+.sidebar-label{font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:10px;padding:0 8px}
+.sidebar-link{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;font-size:0.85rem;color:var(--muted2);transition:all 0.2s;margin-bottom:2px}
+.sidebar-link:hover,.sidebar-link.active{background:rgba(59,130,246,0.1);color:var(--accent)}
+.sidebar-badge{margin-left:auto;background:var(--red);color:white;font-size:0.65rem;padding:2px 6px;border-radius:999px;font-weight:700}
+.main{flex:1;padding:32px;overflow-x:hidden}
+.page-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;flex-wrap:wrap;gap:16px}
+.page-title{font-size:1.5rem;font-weight:700;letter-spacing:-0.02em}
+.page-sub{color:var(--muted);font-size:0.85rem;margin-top:4px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:8px;font-size:0.85rem;font-weight:600;cursor:pointer;border:none;transition:all 0.2s;text-decoration:none}
+.btn-primary{background:var(--accent);color:white}
+.btn-primary:hover{background:#2563eb;transform:translateY(-1px)}
+.btn-sm{padding:6px 12px;font-size:0.78rem}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border)}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+.stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:28px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+.stat-value{font-size:1.8rem;font-weight:700;line-height:1;margin-bottom:6px}
+.stat-label{font-size:0.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em}
+.stat-card.critical .stat-value{color:var(--red)}
+.stat-card.warning .stat-value{color:var(--amber)}
+.stat-card.success .stat-value{color:var(--green)}
+.stat-card.info .stat-value{color:var(--accent)}
+.stat-card.purple .stat-value{color:var(--purple)}
+.filters{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
+.search-box{flex:1;min-width:200px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px 14px;color:var(--text);font-size:0.88rem;font-family:inherit;outline:none;transition:border-color 0.2s}
+.search-box:focus{border-color:var(--accent)}
+.filter-select{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px 14px;color:var(--text);font-size:0.85rem;font-family:inherit;outline:none;cursor:pointer}
+.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.table-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.table-title{font-weight:600;font-size:0.9rem}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);padding:12px 16px;border-bottom:1px solid var(--border);font-weight:500}
+td{padding:13px 16px;border-bottom:1px solid rgba(30,42,58,0.5);font-size:0.88rem;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(59,130,246,0.03)}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:0.72rem;font-weight:600;letter-spacing:0.04em}
+.badge-critical{background:rgba(239,68,68,0.12);color:var(--red);border:1px solid rgba(239,68,68,0.25)}
+.badge-high{background:rgba(245,158,11,0.12);color:var(--amber);border:1px solid rgba(245,158,11,0.25)}
+.badge-medium{background:rgba(59,130,246,0.12);color:var(--accent);border:1px solid rgba(59,130,246,0.25)}
+.badge-low{background:rgba(100,116,139,0.12);color:var(--muted2);border:1px solid rgba(100,116,139,0.25)}
+.badge-active{background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.2)}
+.badge-served{background:rgba(168,85,247,0.1);color:var(--purple);border:1px solid rgba(168,85,247,0.2)}
+.badge-inactive{background:rgba(100,116,139,0.1);color:var(--muted);border:1px solid rgba(100,116,139,0.2)}
+.score-wrap{display:flex;align-items:center;gap:10px}
+.score-bar{flex:1;height:6px;background:var(--border);border-radius:999px;overflow:hidden;min-width:60px}
+.score-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--green),var(--amber),var(--red))}
+.score-num{font-family:'JetBrains Mono',monospace;font-size:0.8rem;min-width:28px;color:var(--muted2)}
+.actions{display:flex;gap:6px;align-items:center}
+.icon-btn{width:30px;height:30px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:0.8rem;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted2);transition:all 0.2s;text-decoration:none}
+.icon-btn:hover{border-color:var(--accent);color:var(--accent)}
+.icon-btn.danger:hover{border-color:var(--red);color:var(--red)}
+.flash{padding:12px 16px;border-radius:8px;margin-bottom:20px;font-size:0.88rem}
+.flash.success{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);color:var(--green)}
+.flash.info{background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);color:var(--accent)}
+.flash.danger{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:var(--red)}
+.empty-state{text-align:center;padding:60px;color:var(--muted)}
+.empty-icon{font-size:3rem;margin-bottom:16px}
+@media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr)}.sidebar{display:none}.main{padding:20px}}
+</style>
 </head>
 <body>
-    <div class="container">
-        <nav style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 10px; background: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-            <div>
-                <strong>FairAid System</strong> | Logged in as: <span style="color: #3498db;">{{ current_user.username }}</span>
-            </div>
-            <a href="{{ url_for('logout') }}" style="color: #e74c3c; text-decoration: none; font-weight: bold;">Logout</a>
-        </nav>
-
-        <header>
-            <h1>Humanitarian Distribution Dashboard</h1>
-            <p class="subtitle">AI-Assisted Fairness Scoring & Audit</p>
-        </header>
-
-        <div class="audit-ribbon" style="display: flex; gap: 20px; justify-content: center; margin-bottom: 30px;">
-            <div class="stat-card" style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                <strong>Total Applicants:</strong> {{ stats.total }}
-            </div>
-            <div class="stat-card" style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                <strong>Displaced Priority:</strong> {{ stats.displaced_priority }}
-            </div>
-        </div>
-<div style="margin-bottom: 30px; display: flex; flex-direction: column; gap: 15px;">
-    
-    <form action="{{ url_for('index') }}" method="GET" style="display: flex; gap: 10px;">
-        <input type="text" 
-               name="search" 
-               placeholder="Search beneficiaries by name..." 
-               value="{{ search_query }}" 
-               style="flex-grow: 1; padding: 12px; border-radius: 6px; border: 1px solid #333; background: #252525; color: white;">
-        
-        <button type="submit" style="padding: 10px 25px; background: #3498db; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
-            Search
-        </button>
-
-        {% if search_query %}
-            <a href="{{ url_for('index') }}" style="padding: 10px 20px; background: #7f8c8d; color: white; text-decoration: none; border-radius: 6px; display: flex; align-items: center;">
-                Clear
-            </a>
-        {% endif %}
+<nav class="navbar">
+  <div class="nav-brand"><div class="nav-dot"></div> FairAid <span style="color:var(--muted);font-weight:300;font-size:0.9rem">/ Dashboard</span></div>
+  <div class="nav-right">
+    <div class="nav-user">Logged in as: <span>{{ current_user.username }}</span></div>
+    <a href="{{ url_for('logout') }}" class="btn-logout">Logout</a>
+  </div>
+</nav>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Main</div>
+      <a href="{{ url_for('index') }}" class="sidebar-link active">Beneficiaries</a>
+      <a href="{{ url_for('add_beneficiary') }}" class="sidebar-link">+ Add New</a>
+      <a href="{{ url_for('upload_csv') }}" class="sidebar-link">Import CSV</a>
+      <a href="{{ url_for('export_csv') }}" class="sidebar-link">Export CSV</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Queue</div>
+      <a href="{{ url_for('view_queue') }}" class="sidebar-link">
+        Review Queue
+        {% if stats.pending_queue > 0 %}<span class="sidebar-badge">{{ stats.pending_queue }}</span>{% endif %}
+      </a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">System</div>
+      <a href="{{ url_for('manage_users') }}" class="sidebar-link">Manage Users</a>
+      <a href="/health" class="sidebar-link">API Health</a>
+    </div>
+  </aside>
+  <main class="main">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat,msg in messages %}<div class="flash {{ cat }}">{{ msg }}</div>{% endfor %}
+    {% endwith %}
+    <div class="page-header">
+      <div>
+        <div class="page-title">Beneficiary Registry</div>
+        <div class="page-sub">Sorted by vulnerability score - highest priority first</div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <a href="{{ url_for('upload_csv') }}" class="btn btn-outline btn-sm">Import CSV</a>
+        <a href="{{ url_for('export_csv') }}" class="btn btn-outline btn-sm">Export</a>
+        <a href="{{ url_for('add_beneficiary') }}" class="btn btn-primary btn-sm">+ Add Beneficiary</a>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-value">{{ stats.total }}</div><div class="stat-label">Total Registered</div></div>
+      <div class="stat-card critical"><div class="stat-value">{{ stats.critical }}</div><div class="stat-label">Critical Priority</div></div>
+      <div class="stat-card warning"><div class="stat-value">{{ stats.displaced }}</div><div class="stat-label">Displaced</div></div>
+      <div class="stat-card success"><div class="stat-value">{{ stats.disabled }}</div><div class="stat-label">Disabled</div></div>
+      <div class="stat-card purple"><div class="stat-value">{{ stats.pending_queue }}</div><div class="stat-label">Queue Pending</div></div>
+    </div>
+    <form method="GET" action="/">
+      <div class="filters">
+        <input class="search-box" name="search" placeholder="Search by name..." value="{{ search_query }}"/>
+        <select class="filter-select" name="status" onchange="this.form.submit()">
+          <option value="active" {% if status_filter=='active' %}selected{% endif %}>Active</option>
+          <option value="served" {% if status_filter=='served' %}selected{% endif %}>Served</option>
+          <option value="inactive" {% if status_filter=='inactive' %}selected{% endif %}>Inactive</option>
+          <option value="all" {% if status_filter=='all' %}selected{% endif %}>All</option>
+        </select>
+        <select class="filter-select" name="sort" onchange="this.form.submit()">
+          <option value="score" {% if sort=='score' %}selected{% endif %}>Sort: Priority Score</option>
+          <option value="name" {% if sort=='name' %}selected{% endif %}>Sort: Name A-Z</option>
+          <option value="date" {% if sort=='date' %}selected{% endif %}>Sort: Date Added</option>
+        </select>
+        <button type="submit" class="btn btn-outline btn-sm">Search</button>
+      </div>
     </form>
-
-    <div style="text-align: right;">
-        <a href="{{ url_for('add_beneficiary') }}" style="background: #27ae60; color: white; padding: 12px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
-            + Register New Beneficiary
-        </a>
+    <div class="table-wrap">
+      <div class="table-header">
+        <div class="table-title">{{ applicants|length }} records shown</div>
+      </div>
+      {% if applicants %}
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Name</th><th>Age</th><th>Income/mo</th><th>Household</th><th>Flags</th><th>Score</th><th>Priority</th><th>Status</th><th>Source</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in applicants %}
+          <tr>
+            <td style="color:var(--muted);font-size:0.75rem">{{ b.id }}</td>
+            <td style="font-weight:500">{{ b.name }}</td>
+            <td>{{ b.age }}</td>
+            <td>${{ b.income }}</td>
+            <td>{{ b.household_size }}</td>
+            <td>
+              {% if b.is_displaced %}<span class="badge badge-high" style="margin-right:4px">Displaced</span>{% endif %}
+              {% if b.is_disabled %}<span class="badge badge-medium">Disabled</span>{% endif %}
+            </td>
+            <td>
+              <div class="score-wrap">
+                <div class="score-bar"><div class="score-fill" style="width:{{ [b.vulnerability_score, 100]|min }}%"></div></div>
+                <span class="score-num">{{ b.vulnerability_score|int }}</span>
+              </div>
+            </td>
+            <td>
+              {% set lbl = score_label(b.vulnerability_score) %}
+              <span class="badge badge-{{ lbl|lower }}">{{ lbl }}</span>
+            </td>
+            <td><span class="badge badge-{{ b.status }}">{{ b.status|capitalize }}</span></td>
+            <td style="color:var(--muted);font-size:0.78rem">{{ b.source }}</td>
+            <td>
+              <div class="actions">
+                {% if b.status != 'served' %}<a href="{{ url_for('update_status', id=b.id, new_status='served') }}" class="icon-btn" title="Mark Served">V</a>{% endif %}
+                <a href="{{ url_for('delete_beneficiary', id=b.id) }}" class="icon-btn danger" title="Delete" onclick="return confirm('Delete {{ b.name }}?')">X</a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-icon">👥</div>
+        <p>No beneficiaries found. <a href="{{ url_for('add_beneficiary') }}" style="color:var(--accent)">Add one</a> or <a href="{{ url_for('upload_csv') }}" style="color:var(--accent)">import CSV</a>.</p>
+      </div>
+      {% endif %}
     </div>
+  </main>
 </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Beneficiary Name</th>
-                    <th>Age</th>
-                    <th>Vulnerability Score</th>
-                    <th>Priority Tags</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for applicant in applicants %}
-                <tr>
-                    <td>{{ applicant.name }}</td>
-                    <td>{{ applicant.age }}</td>
-                    <td><strong>{{ "%.2f"|format(applicant.vulnerability_score) }}</strong></td>
-                    <td>
-                        {% if applicant.is_displaced %}
-                        <span style="background: #ffeaa7; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; margin-right: 5px;">DISPLACED</span>
-                        {% endif %}
-                        {% if applicant.is_disabled %}
-                        <span style="background: #fab1a0; padding: 4px 8px; border-radius: 4px; font-size: 0.8em;">DISABLED</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
 </body>
 </html>

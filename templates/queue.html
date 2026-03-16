@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FairAid - Review Queue</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#07080f;--surface:#0e1117;--card:#131820;--border:#1e2a3a;--accent:#3b82f6;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;--purple:#a855f7;--text:#e2e8f0;--muted:#64748b;--muted2:#94a3b8}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+.navbar{background:rgba(7,8,15,0.95);border-bottom:1px solid var(--border);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100}
+.nav-brand{font-weight:700;font-size:1.05rem}
+.main{max-width:1100px;margin:0 auto;padding:40px 24px}
+.page-title{font-size:1.4rem;font-weight:700;margin-bottom:6px}
+.page-sub{color:var(--muted);font-size:0.88rem;margin-bottom:32px}
+.queue-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center}
+.queue-card.pending{border-left:3px solid var(--amber)}
+.queue-card.approved{border-left:3px solid var(--green);opacity:0.6}
+.queue-card.rejected{border-left:3px solid var(--red);opacity:0.5}
+.queue-data{display:flex;flex-wrap:wrap;gap:12px}
+.queue-field{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:6px 12px;font-size:0.82rem}
+.queue-field .key{color:var(--muted);margin-right:6px;font-family:'JetBrains Mono',monospace;font-size:0.75rem}
+.queue-field .val{color:var(--text);font-weight:500}
+.queue-meta{font-size:0.78rem;color:var(--muted);margin-top:10px}
+.queue-actions{display:flex;gap:8px;flex-shrink:0}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:0.82rem;font-weight:600;cursor:pointer;border:none;transition:all 0.2s;text-decoration:none}
+.btn-green{background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.2)}
+.btn-green:hover{background:rgba(34,197,94,0.2)}
+.btn-red{background:rgba(239,68,68,0.1);color:var(--red);border:1px solid rgba(239,68,68,0.2)}
+.btn-red:hover{background:rgba(239,68,68,0.2)}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:0.72rem;font-weight:600}
+.badge-pending{background:rgba(245,158,11,0.12);color:var(--amber);border:1px solid rgba(245,158,11,0.25)}
+.badge-approved{background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.2)}
+.badge-rejected{background:rgba(239,68,68,0.1);color:var(--red);border:1px solid rgba(239,68,68,0.2)}
+.empty-state{text-align:center;padding:60px;color:var(--muted)}
+.empty-icon{font-size:3rem;margin-bottom:16px}
+.flash{padding:12px 16px;border-radius:8px;margin-bottom:20px;font-size:0.88rem}
+.flash.success{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);color:var(--green)}
+.flash.info{background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);color:var(--accent)}
+.flash.danger{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:var(--red)}
+.summary-bar{display:flex;gap:16px;margin-bottom:28px;flex-wrap:wrap}
+.summary-chip{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 18px;font-size:0.85rem}
+.summary-chip strong{font-size:1.2rem;display:block;line-height:1;margin-bottom:4px}
+</style>
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-brand">FairAid / Review Queue</div>
+  <a href="{{ url_for('index') }}" style="font-size:0.85rem;color:var(--muted)">Back to Dashboard</a>
+</nav>
+<div class="main">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat,msg in messages %}<div class="flash {{ cat }}">{{ msg }}</div>{% endfor %}
+  {% endwith %}
+  <div class="page-title">Incoming Data Queue</div>
+  <div class="page-sub">Review and approve or reject beneficiary records submitted via CSV upload or API before they go live.</div>
+  {% set pending = items|selectattr('item.status','equalto','pending')|list %}
+  {% set approved = items|selectattr('item.status','equalto','approved')|list %}
+  {% set rejected = items|selectattr('item.status','equalto','rejected')|list %}
+  <div class="summary-bar">
+    <div class="summary-chip"><strong style="color:var(--amber)">{{ pending|length }}</strong>Pending Review</div>
+    <div class="summary-chip"><strong style="color:var(--green)">{{ approved|length }}</strong>Approved</div>
+    <div class="summary-chip"><strong style="color:var(--red)">{{ rejected|length }}</strong>Rejected</div>
+    <div class="summary-chip"><strong>{{ items|length }}</strong>Total</div>
+  </div>
+  {% if items %}
+    {% for entry in items %}
+    {% set item = entry.item %}
+    {% set data = entry.data %}
+    <div class="queue-card {{ item.status }}">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <span style="font-weight:600">{{ data.get('name', 'Unknown') }}</span>
+          <span class="badge badge-{{ item.status }}">{{ item.status|upper }}</span>
+          <span style="font-size:0.78rem;color:var(--muted);background:var(--surface);border:1px solid var(--border);padding:2px 8px;border-radius:4px">{{ item.source }}</span>
+        </div>
+        <div class="queue-data">
+          {% if data.get('age') %}<div class="queue-field"><span class="key">age</span><span class="val">{{ data.get('age') }}</span></div>{% endif %}
+          {% if data.get('income') %}<div class="queue-field"><span class="key">income</span><span class="val">${{ data.get('income') }}</span></div>{% endif %}
+          {% if data.get('household_size') %}<div class="queue-field"><span class="key">household</span><span class="val">{{ data.get('household_size') }}</span></div>{% endif %}
+          {% if data.get('is_displaced') %}<div class="queue-field"><span class="key">displaced</span><span class="val">{{ data.get('is_displaced') }}</span></div>{% endif %}
+          {% if data.get('is_disabled') %}<div class="queue-field"><span class="key">disabled</span><span class="val">{{ data.get('is_disabled') }}</span></div>{% endif %}
+          {% if data.get('location') %}<div class="queue-field"><span class="key">location</span><span class="val">{{ data.get('location') }}</span></div>{% endif %}
+        </div>
+        <div class="queue-meta">
+          Submitted: {{ item.submitted_at.strftime('%Y-%m-%d %H:%M') }}
+          {% if item.reviewed_by %} | Reviewed by: {{ item.reviewed_by }} on {{ item.reviewed_at.strftime('%Y-%m-%d %H:%M') }}{% endif %}
+        </div>
+      </div>
+      {% if item.status == 'pending' %}
+      <div class="queue-actions">
+        <a href="{{ url_for('approve_queue', id=item.id) }}" class="btn btn-green">Approve</a>
+        <a href="{{ url_for('reject_queue', id=item.id) }}" class="btn btn-red">Reject</a>
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">📋</div>
+    <p>No records in the queue. Import a CSV or use the API to add data.</p>
+  </div>
+  {% endif %}
+</div>
+</body>
+</html>

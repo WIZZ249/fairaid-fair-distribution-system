@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FairAid - Import CSV</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#07080f;--surface:#0e1117;--card:#131820;--border:#1e2a3a;--accent:#3b82f6;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;--text:#e2e8f0;--muted:#64748b;--muted2:#94a3b8}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+.navbar{background:rgba(7,8,15,0.95);border-bottom:1px solid var(--border);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100}
+.nav-brand{font-weight:700;font-size:1.05rem}
+.main{max-width:800px;margin:0 auto;padding:40px 24px}
+.page-title{font-size:1.4rem;font-weight:700;margin-bottom:6px}
+.page-sub{color:var(--muted);font-size:0.88rem;margin-bottom:32px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:32px;margin-bottom:24px}
+.card-title{font-weight:600;font-size:1rem;margin-bottom:20px}
+.upload-area{border:2px dashed var(--border);border-radius:10px;padding:48px;text-align:center;cursor:pointer;transition:all 0.2s;position:relative;margin-bottom:20px}
+.upload-area:hover{border-color:var(--accent);background:rgba(59,130,246,0.03)}
+.upload-area input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{font-size:2.5rem;margin-bottom:12px}
+.upload-area p{color:var(--muted);font-size:0.9rem}
+.form-group{margin-bottom:18px}
+.form-group label{display:block;font-size:0.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px}
+.mode-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.mode-card{border:2px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;transition:all 0.2s}
+.mode-card:hover,.mode-card.selected{border-color:var(--accent);background:rgba(59,130,246,0.05)}
+.mode-card input{display:none}
+.mode-title{font-weight:600;font-size:0.9rem;margin-bottom:4px}
+.mode-desc{font-size:0.8rem;color:var(--muted)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:13px 22px;border-radius:8px;font-size:0.9rem;font-weight:600;cursor:pointer;border:none;transition:all 0.2s;width:100%}
+.btn-primary{background:var(--accent);color:white}
+.btn-primary:hover{background:#2563eb}
+.schema-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:var(--muted2);line-height:1.8}
+.flash{padding:12px 16px;border-radius:8px;margin-bottom:20px;font-size:0.88rem}
+.flash.success{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);color:var(--green)}
+.flash.danger{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:var(--red)}
+.flash.info{background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);color:var(--accent)}
+</style>
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-brand">FairAid / Import CSV</div>
+  <a href="{{ url_for('index') }}" style="font-size:0.85rem;color:var(--muted)">Back to Dashboard</a>
+</nav>
+<div class="main">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat,msg in messages %}<div class="flash {{ cat }}">{{ msg }}</div>{% endfor %}
+  {% endwith %}
+  <div class="page-title">Import Beneficiaries via CSV</div>
+  <div class="page-sub">Upload a CSV file to bulk-import beneficiary data. Choose to add directly or send to the review queue first.</div>
+  <div class="card">
+    <div class="card-title">Upload CSV File</div>
+    <form method="POST" enctype="multipart/form-data">
+      <div class="upload-area" id="uploadArea">
+        <div class="upload-icon">📂</div>
+        <p id="uploadText">Drag and drop your CSV here or click to browse</p>
+        <input type="file" name="csv_file" id="csvFile" accept=".csv" required/>
+      </div>
+      <div class="form-group">
+        <label>Import Mode</label>
+        <div class="mode-cards">
+          <label class="mode-card selected" onclick="selectMode(this)">
+            <input type="radio" name="mode" value="queue" checked/>
+            <div class="mode-title">Send to Queue</div>
+            <div class="mode-desc">Records wait for admin review before going live. Recommended for external data.</div>
+          </label>
+          <label class="mode-card" onclick="selectMode(this)">
+            <input type="radio" name="mode" value="direct"/>
+            <div class="mode-title">Import Directly</div>
+            <div class="mode-desc">Records are added immediately. Use for trusted data sources only.</div>
+          </label>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">Upload and Import</button>
+    </form>
+  </div>
+  <div class="card">
+    <div class="card-title">Required CSV Format</div>
+    <div class="schema-box">
+      <div>name, age, income, household_size, is_displaced, is_disabled, location, notes</div>
+      <br/>
+      <div>--- Example rows ---</div>
+      <div>Fatima Hassan, 72, 15.50, 6, Yes, No, Kampala, Elderly widow</div>
+      <div>Omar Diallo, 34, 45.00, 3, Yes, Yes, Gulu, Displaced and disabled</div>
+      <div>Amara Keita, 28, 80.00, 2, No, No, Jinja,</div>
+    </div>
+    <div style="margin-top:16px;font-size:0.82rem;color:var(--muted)">
+      is_displaced and is_disabled accept: Yes/No, True/False, or 1/0
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">API Ingest Endpoint</div>
+    <div style="font-size:0.88rem;color:var(--muted);margin-bottom:16px">External systems can POST data directly to the API. All API data goes to the review queue automatically.</div>
+    <div class="schema-box">
+      <div>POST /api/ingest</div>
+      <div>Headers: X-API-Key: fairaid-api-key-2026</div>
+      <div>Content-Type: application/json</div>
+      <br/>
+      <div>[{"name": "Fatima Hassan", "age": 72, "income": 15.5, "household_size": 6, "is_displaced": "Yes", "is_disabled": "No"}]</div>
+    </div>
+  </div>
+</div>
+<script>
+  function selectMode(el) {
+    document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+  const input = document.getElementById('csvFile');
+  input.addEventListener('change', () => {
+    if (input.files[0]) {
+      document.getElementById('uploadText').textContent = input.files[0].name;
+      document.getElementById('uploadText').style.color = '#3b82f6';
+    }
+  });
+</script>
+</body>
+</html>
