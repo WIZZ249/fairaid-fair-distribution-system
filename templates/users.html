@@ -1,102 +1,73 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FairAid - User Management</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-<style>
-:root{--bg:#07080f;--surface:#0e1117;--card:#131820;--border:#1e2a3a;--accent:#3b82f6;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;--purple:#a855f7;--text:#e2e8f0;--muted:#64748b}
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
-.navbar{background:rgba(7,8,15,0.95);border-bottom:1px solid var(--border);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100}
-.nav-brand{font-weight:700;font-size:1.05rem}
-.main{max-width:900px;margin:0 auto;padding:40px 24px}
-.page-title{font-size:1.4rem;font-weight:700;margin-bottom:6px}
-.page-sub{color:var(--muted);font-size:0.88rem;margin-bottom:32px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
-.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:32px}
-.card-title{font-weight:600;font-size:1rem;margin-bottom:20px}
-.form-group{margin-bottom:18px}
-.form-group label{display:block;font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px}
-.form-group input,.form-group select{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text);font-family:inherit;font-size:0.9rem;outline:none;transition:border-color 0.2s}
-.form-group input:focus,.form-group select:focus{border-color:var(--accent)}
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 22px;border-radius:8px;font-size:0.88rem;font-weight:600;cursor:pointer;border:none;transition:all 0.2s;width:100%;text-decoration:none}
-.btn-primary{background:var(--accent);color:white}
-.btn-primary:hover{background:#2563eb}
-.btn-red{background:rgba(239,68,68,0.1);color:var(--red);border:1px solid rgba(239,68,68,0.2);width:auto;padding:6px 14px;font-size:0.78rem}
-.btn-red:hover{background:rgba(239,68,68,0.2)}
-.flash{padding:12px 16px;border-radius:8px;margin-bottom:20px;font-size:0.88rem}
-.flash.success{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);color:var(--green)}
-.flash.danger{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:var(--red)}
-.flash.info{background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);color:var(--accent)}
-table{width:100%;border-collapse:collapse}
-th{text-align:left;font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);padding:10px 14px;border-bottom:1px solid var(--border);font-weight:500}
-td{padding:12px 14px;border-bottom:1px solid rgba(30,42,58,0.5);font-size:0.88rem;vertical-align:middle}
-tr:last-child td{border-bottom:none}
-.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:0.72rem;font-weight:600}
-.badge-admin{background:rgba(168,85,247,0.1);color:var(--purple);border:1px solid rgba(168,85,247,0.2)}
-.badge-staff{background:rgba(59,130,246,0.1);color:var(--accent);border:1px solid rgba(59,130,246,0.2)}
-</style>
-</head>
-<body>
-<nav class="navbar">
-  <div class="nav-brand">FairAid / User Management</div>
-  <a href="{{ url_for('index') }}" style="font-size:0.85rem;color:var(--muted)">Back to Dashboard</a>
-</nav>
-<div class="main">
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% for cat,msg in messages %}<div class="flash {{ cat }}">{{ msg }}</div>{% endfor %}
-  {% endwith %}
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
 
-  <div class="page-title">User Management</div>
-  <div class="page-sub">Create and manage user accounts for FairAid. Only admins can access this page.</div>
+  <h2>👥 User Management</h2>
+  <p class="text-muted">Only admins can create or delete users.</p>
 
-  <div class="grid">
-    <!-- CREATE USER FORM -->
-    <div class="card">
-      <div class="card-title">Create New User</div>
+  <!-- CREATE ACCOUNT FORM -->
+  <div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+      <strong>➕ Create New Account</strong>
+    </div>
+    <div class="card-body">
       <form method="POST" action="{{ url_for('create_user') }}">
-        <div class="form-group">
-          <label>Username</label>
-          <input type="text" name="username" required placeholder="e.g. john_field"/>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label">Username</label>
+            <input type="text" name="username" class="form-control" required placeholder="e.g. john_staff">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Password</label>
+            <input type="password" name="password" class="form-control" required placeholder="Min 6 characters">
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Role</label>
+            <select name="role" class="form-select">
+              <option value="Staff">Staff</option>
+              <option value="Admin">Admin</option>
+            </select>
+          </div>
+          <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">Create</button>
+          </div>
         </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" name="password" required placeholder="Min 6 characters"/>
-        </div>
-        <div class="form-group">
-          <label>Role</label>
-          <select name="role">
-            <option value="Staff">Staff</option>
-            <option value="Admin">Admin</option>
-          </select>
-        </div>
-        <button type="submit" class="btn btn-primary">+ Create User</button>
       </form>
     </div>
+  </div>
 
-    <!-- USERS LIST -->
-    <div class="card">
-      <div class="card-title">Existing Users ({{ users|length }})</div>
-      <table>
-        <thead>
+  <!-- EXISTING USERS TABLE -->
+  <div class="card">
+    <div class="card-header"><strong>📋 Existing Users</strong></div>
+    <div class="card-body p-0">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
           <tr>
+            <th>#</th>
             <th>Username</th>
             <th>Role</th>
             <th>Action</th>
           </tr>
         </thead>
         <tbody>
-          {% for u in users %}
+          {% for user in users %}
           <tr>
-            <td style="font-weight:500">{{ u.username }}</td>
-            <td><span class="badge badge-{{ u.role|lower }}">{{ u.role }}</span></td>
+            <td>{{ user.id }}</td>
+            <td>{{ user.username }}</td>
             <td>
-              {% if u.username != current_user.username %}
-              <a href="{{ url_for('delete_user', id=u.id) }}" class="btn btn-red" onclick="return confirm('Delete {{ u.username }}?')">Delete</a>
+              <span class="badge {% if user.role == 'Admin' %}bg-danger{% else %}bg-secondary{% endif %}">
+                {{ user.role }}
+              </span>
+            </td>
+            <td>
+              {% if user.username != current_user.username %}
+              <a href="{{ url_for('delete_user', id=user.id) }}"
+                 class="btn btn-sm btn-outline-danger"
+                 onclick="return confirm('Delete {{ user.username }}?')">
+                🗑 Delete
+              </a>
               {% else %}
-              <span style="color:var(--muted);font-size:0.78rem">You</span>
+              <span class="text-muted">You</span>
               {% endif %}
             </td>
           </tr>
@@ -105,6 +76,6 @@ tr:last-child td{border-bottom:none}
       </table>
     </div>
   </div>
+
 </div>
-</body>
-</html>
+{% endblock %}
